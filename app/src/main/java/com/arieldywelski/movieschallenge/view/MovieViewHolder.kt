@@ -8,6 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.arieldywelski.movieschallenge.R
 import com.arieldywelski.movieschallenge.data.Movie
 import com.arieldywelski.movieschallenge.databinding.ListMovieItemBinding
+import com.arieldywelski.movieschallenge.utils.Constants
+import com.bumptech.glide.Glide
 
 class MovieViewHolder(
   private val binding: ListMovieItemBinding
@@ -17,7 +19,6 @@ class MovieViewHolder(
     if (movie == null) {
       with(binding) {
         movieTitle.text = UNKNOWN_PLACEHOLDER
-        movieReleaseDate.visibility = View.GONE
         movieAverageScore.visibility = View.GONE
       }
     } else {
@@ -28,8 +29,15 @@ class MovieViewHolder(
   private fun showMovieData(movie: Movie) {
     with(binding) {
       movieTitle.text = movie.movieTitle
-      movieReleaseDate.text = movie.movieReleaseDate
       movieAverageScore.text = movie.movieVoteAverage.toString()
+
+      likedMovie.setOnClickListener {
+
+      }
+
+      Glide.with(this.root)
+        .load(Constants.MOVIE_IMAGE_BASE_PATH + movie.moviePosterPath)
+        .into(moviePoster)
 
       root.setOnClickListener {
         val actionToMovieDetails = MoviesFragmentDirections.actionToMovieDetails(movieId = movie.movieId)

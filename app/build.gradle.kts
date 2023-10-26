@@ -66,8 +66,9 @@ dependencies {
   implementation ("com.squareup.okhttp3:logging-interceptor:4.10.0")
   implementation ("com.squareup.okhttp3:okhttp-urlconnection:4.5.0")
 
-  implementation ("androidx.room:room-runtime:2.6.0")
+  implementation("androidx.room:room-runtime:2.6.0")
   implementation ("androidx.room:room-ktx:2.6.0")
+  annotationProcessor("androidx.room:room-compiler:2.6.0")
 
   implementation( "androidx.paging:paging-runtime-ktx:3.2.1")
 

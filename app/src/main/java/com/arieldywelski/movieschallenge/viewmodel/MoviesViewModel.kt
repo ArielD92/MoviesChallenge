@@ -8,6 +8,7 @@ import androidx.paging.cachedIn
 import androidx.paging.map
 import com.arieldywelski.movieschallenge.data.Movie
 import com.arieldywelski.movieschallenge.data.MoviesRepository
+import com.arieldywelski.movieschallenge.utils.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -35,8 +36,8 @@ class MoviesViewModel @Inject constructor(
   val accept: (UiAction) -> Unit
 
   init {
-    val initialQuery = savedStateHandle[LAST_SEARCH_QUERY] ?: DEFAULT_QUERY
-    val lastQueryScrolled = savedStateHandle[LAST_QUERY_SCROLLED] ?: DEFAULT_QUERY
+    val initialQuery = savedStateHandle[LAST_SEARCH_QUERY] ?: Constants.EMPTY_STRING
+    val lastQueryScrolled = savedStateHandle[LAST_QUERY_SCROLLED] ?: Constants.EMPTY_STRING
     val actionStateFlow = MutableSharedFlow<UiAction>()
     val searches = actionStateFlow
       .filterIsInstance<UiAction.Search>()
@@ -103,8 +104,8 @@ sealed class UiAction {
 }
 
 data class UiState(
-  val query: String = DEFAULT_QUERY,
-  val lastQueryScrolled: String = DEFAULT_QUERY,
+  val query: String = Constants.EMPTY_STRING,
+  val lastQueryScrolled: String = Constants.EMPTY_STRING,
   val hasNotScrolledForCurrentSearch: Boolean = false
 )
 
@@ -112,6 +113,5 @@ sealed class UiModel {
   data class MovieItem(val movie: Movie) : UiModel()
 }
 
-private const val DEFAULT_QUERY = ""
 private const val LAST_QUERY_SCROLLED = "last_query_scrolled"
 private const val LAST_SEARCH_QUERY = "last_search_query"

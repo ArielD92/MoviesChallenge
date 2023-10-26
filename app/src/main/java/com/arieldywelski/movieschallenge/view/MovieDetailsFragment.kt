@@ -42,13 +42,34 @@ class MovieDetailsFragment : Fragment() {
     viewModel.item.observe(viewLifecycleOwner) {
       bindMovieDetails(it)
     }
+
     return binding.root
   }
 
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    with(binding) {
+      toolbar.inflateMenu(R.menu.toolbar_menu)
+      toolbar.title = "Movie Details"
+
+      toolbar.setOnMenuItemClickListener { menuItem ->
+        when(menuItem.itemId) {
+          R.id.action_liked_movie -> {
+            true
+          }
+          else -> false
+        }
+      }
+    }
+  }
   private fun bindMovieDetails(movie: MovieDetailViewModel.Movie) {
     with(binding) {
       movieTitle.text = movie.movieName
-      movieDescription.text = movie.movieDescription
+      if (movie.movieDescription.isEmpty()) {
+        movieDescription.text = root.context.getText(R.string.unknown)
+      } else {
+        movieDescription.text = movie.movieDescription
+      }
       movieReleaseDate.text = movie.movieReleaseDate
 
       Glide.with(binding.root)

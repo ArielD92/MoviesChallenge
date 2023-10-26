@@ -4,4 +4,9 @@
   <string name="retry_button_text">Retry</string>
   <string name="no_result_text">No result</string>
   <string name="movie_poster_content_description">Content to present movie poster.</string>
+  <string name="is_liked">Is liked</string>
+  <string name="movie_title_header_text">Movie Title</string>
+  <string name="movie_description_header_text">Movie Description</string>
+  <string name="movie_release_date_header_text">Movie Release Date</string>
+  <string name="unknown">Unknown</string>
 </resources>

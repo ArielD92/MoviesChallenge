@@ -16,6 +16,7 @@ import androidx.paging.PagingData
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.arieldywelski.movieschallenge.databinding.FragmentMoviesBinding
+import com.arieldywelski.movieschallenge.utils.Constants
 import com.arieldywelski.movieschallenge.utils.MoviesAdapter
 import com.arieldywelski.movieschallenge.utils.MoviesLoadStateAdapter
 import com.arieldywelski.movieschallenge.utils.RemotePresentationState
@@ -120,6 +121,9 @@ class MoviesFragment : Fragment() {
       if (it.isNotEmpty()) {
         moviesRecycler.scrollToPosition(0)
         onQueryChanged(UiAction.Search(query = it.toString()))
+      } else {
+        moviesRecycler.scrollToPosition(0)
+        onQueryChanged(UiAction.Search(query = Constants.EMPTY_STRING))
       }
     }
   }
