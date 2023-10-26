@@ -15,15 +15,16 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
+import com.arieldywelski.movieschallenge.data.CombineMovieModel
 import com.arieldywelski.movieschallenge.databinding.FragmentMoviesBinding
 import com.arieldywelski.movieschallenge.utils.Constants
+import com.arieldywelski.movieschallenge.utils.MovieLikedInterface
 import com.arieldywelski.movieschallenge.utils.MoviesAdapter
 import com.arieldywelski.movieschallenge.utils.MoviesLoadStateAdapter
 import com.arieldywelski.movieschallenge.utils.RemotePresentationState
 import com.arieldywelski.movieschallenge.utils.asRemotePresentationState
 import com.arieldywelski.movieschallenge.viewmodel.MoviesViewModel
 import com.arieldywelski.movieschallenge.viewmodel.UiAction
-import com.arieldywelski.movieschallenge.viewmodel.UiModel
 import com.arieldywelski.movieschallenge.viewmodel.UiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
@@ -35,7 +36,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class MoviesFragment : Fragment() {
+class MoviesFragment : Fragment(), MovieLikedInterface {
 
   private val viewModel: MoviesViewModel by viewModels()
 
@@ -61,11 +62,11 @@ class MoviesFragment : Fragment() {
 
   private fun FragmentMoviesBinding.bindState(
     uiState: StateFlow<UiState>,
-    pagingData: Flow<PagingData<UiModel>>,
+    pagingData: Flow<PagingData<CombineMovieModel>>,
     uiAction: (UiAction) -> Unit
   ) {
 
-    val moviesAdapter = MoviesAdapter()
+    val moviesAdapter = MoviesAdapter(this@MoviesFragment)
     val header = MoviesLoadStateAdapter { moviesAdapter.retry() }
 
     moviesRecycler.adapter = moviesAdapter.withLoadStateHeaderAndFooter(
@@ -132,7 +133,7 @@ class MoviesFragment : Fragment() {
     header: MoviesLoadStateAdapter,
     moviesAdapter: MoviesAdapter,
     uiState: StateFlow<UiState>,
-    pagingData: Flow<PagingData<UiModel>>,
+    pagingData: Flow<PagingData<CombineMovieModel>>,
     onScrollChanged: (UiAction.Scroll) -> Unit
   ) {
     retryButton.setOnClickListener { moviesAdapter.retry() }
@@ -195,5 +196,9 @@ class MoviesFragment : Fragment() {
         }
       }
     }
+  }
+
+  override fun onMovieLiked(movieId: Long, isLiked: Boolean) {
+    viewModel.onMovieLiked(movieId, isLiked)
   }
 }

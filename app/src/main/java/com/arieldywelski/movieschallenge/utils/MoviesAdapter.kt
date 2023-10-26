@@ -1,24 +1,21 @@
 package com.arieldywelski.movieschallenge.utils
 
 import android.view.ViewGroup
-import androidx.navigation.findNavController
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.arieldywelski.movieschallenge.R
+import com.arieldywelski.movieschallenge.data.CombineMovieModel
 import com.arieldywelski.movieschallenge.view.MovieViewHolder
-import com.arieldywelski.movieschallenge.view.MoviesFragment
-import com.arieldywelski.movieschallenge.view.MoviesFragmentDirections
-import com.arieldywelski.movieschallenge.viewmodel.UiModel
 
-class MoviesAdapter : PagingDataAdapter<UiModel, ViewHolder>(UI_MODEL_COMPARATOR) {
+class MoviesAdapter(private val movieLikedInterface: MovieLikedInterface) : PagingDataAdapter<CombineMovieModel, ViewHolder>(UI_MODEL_COMPARATOR) {
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
     return MovieViewHolder.create(parent)
   }
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-    val uiModel: UiModel.MovieItem = getItem(position) as UiModel.MovieItem
-    (holder as MovieViewHolder).bind(uiModel.movie)
+    val movie: CombineMovieModel = getItem(position) as CombineMovieModel
+    (holder as MovieViewHolder).bind(movie, movieLikedInterface)
   }
 
   override fun getItemViewType(position: Int): Int {
@@ -26,13 +23,17 @@ class MoviesAdapter : PagingDataAdapter<UiModel, ViewHolder>(UI_MODEL_COMPARATOR
   }
 
   companion object {
-    private val UI_MODEL_COMPARATOR = object : DiffUtil.ItemCallback<UiModel>() {
-      override fun areItemsTheSame(oldItem: UiModel, newItem: UiModel): Boolean {
-        return (oldItem is UiModel.MovieItem && newItem is UiModel.MovieItem && oldItem.movie.movieId == newItem.movie.movieId)
+    private val UI_MODEL_COMPARATOR = object : DiffUtil.ItemCallback<CombineMovieModel>() {
+      override fun areItemsTheSame(oldItem: CombineMovieModel, newItem: CombineMovieModel): Boolean {
+        return (oldItem.movieId == newItem.movieId)
       }
 
-      override fun areContentsTheSame(oldItem: UiModel, newItem: UiModel): Boolean =
+      override fun areContentsTheSame(oldItem: CombineMovieModel, newItem: CombineMovieModel): Boolean =
         oldItem == newItem
     }
   }
+}
+
+interface MovieLikedInterface {
+  fun onMovieLiked(movieId: Long, isLiked: Boolean)
 }

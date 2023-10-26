@@ -6,8 +6,10 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
+import com.arieldywelski.movieschallenge.data.CombineMovieModel
 import com.arieldywelski.movieschallenge.data.Movie
 import com.arieldywelski.movieschallenge.data.MoviesRepository
+import com.arieldywelski.movieschallenge.db.MovieModel
 import com.arieldywelski.movieschallenge.utils.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -32,8 +34,10 @@ class MoviesViewModel @Inject constructor(
 ) : ViewModel() {
 
   val state: StateFlow<UiState>
-  val pagingDataFlow: Flow<PagingData<UiModel>>
+  val pagingDataFlow: Flow<PagingData<CombineMovieModel>>
   val accept: (UiAction) -> Unit
+
+  private lateinit var likedMovies: Flow<List<MovieModel>>
 
   init {
     val initialQuery = savedStateHandle[LAST_SEARCH_QUERY] ?: Constants.EMPTY_STRING
@@ -57,10 +61,20 @@ class MoviesViewModel @Inject constructor(
         emit(UiAction.Scroll(currentQuery = lastQueryScrolled))
       }
 
+    viewModelScope.launch {
+      likedMovies = repository.getLikedMovies()
+    }
+
     pagingDataFlow = searches
       .flatMapLatest {
         getMovies(query = it.query)
-      }.cachedIn(viewModelScope)
+      }
+      .cachedIn(viewModelScope)
+      .combine(likedMovies) { movies, likes ->
+        movies.map { item ->
+          item.copy(isLiked = likes.any { it.movieId == item.movieId })
+        }
+      }
 
     state = combine(
       searches,
@@ -85,15 +99,22 @@ class MoviesViewModel @Inject constructor(
     }
   }
 
+  fun onMovieLiked(movieId: Long, isLiked: Boolean) {
+    viewModelScope.launch {
+      if (isLiked) {
+        repository.insertLikedMovie(movieId)
+      } else {
+        repository.removeLikedMovie(movieId)
+      }
+    }
+  }
   override fun onCleared() {
     savedStateHandle[LAST_SEARCH_QUERY] = state.value.query
     savedStateHandle[LAST_QUERY_SCROLLED] = state.value.lastQueryScrolled
     super.onCleared()
   }
 
-  private fun getMovies(query: String): Flow<PagingData<UiModel>> =
-    repository.getMoviesStream(query = query)
-      .map { pagingData -> pagingData.map { UiModel.MovieItem(it) } }
+  private fun getMovies(query: String): Flow<PagingData<CombineMovieModel>> = repository.getMoviesStream(query = query)
 }
 
 sealed class UiAction {
@@ -108,10 +129,6 @@ data class UiState(
   val lastQueryScrolled: String = Constants.EMPTY_STRING,
   val hasNotScrolledForCurrentSearch: Boolean = false
 )
-
-sealed class UiModel {
-  data class MovieItem(val movie: Movie) : UiModel()
-}
 
 private const val LAST_QUERY_SCROLLED = "last_query_scrolled"
 private const val LAST_SEARCH_QUERY = "last_search_query"

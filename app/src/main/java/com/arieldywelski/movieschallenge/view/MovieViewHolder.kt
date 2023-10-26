@@ -1,38 +1,39 @@
 package com.arieldywelski.movieschallenge.view
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.arieldywelski.movieschallenge.R
+import com.arieldywelski.movieschallenge.data.CombineMovieModel
 import com.arieldywelski.movieschallenge.data.Movie
 import com.arieldywelski.movieschallenge.databinding.ListMovieItemBinding
 import com.arieldywelski.movieschallenge.utils.Constants
+import com.arieldywelski.movieschallenge.utils.MovieLikedInterface
 import com.bumptech.glide.Glide
 
 class MovieViewHolder(
   private val binding: ListMovieItemBinding
 ) : RecyclerView.ViewHolder(binding.root) {
 
-  fun bind(movie: Movie?) {
-    if (movie == null) {
-      with(binding) {
-        movieTitle.text = UNKNOWN_PLACEHOLDER
-        movieAverageScore.visibility = View.GONE
-      }
-    } else {
-      showMovieData(movie)
-    }
+  fun bind(movie: CombineMovieModel, movieLikedInterface: MovieLikedInterface) {
+    showMovieData(movie, movieLikedInterface)
   }
 
-  private fun showMovieData(movie: Movie) {
+  private fun showMovieData(movie: CombineMovieModel, movieLikedInterface: MovieLikedInterface) {
     with(binding) {
       movieTitle.text = movie.movieTitle
       movieAverageScore.text = movie.movieVoteAverage.toString()
 
       likedMovie.setOnClickListener {
+        movieLikedInterface.onMovieLiked(movie.movieId, !movie.isLiked)
+      }
 
+      if (movie.isLiked) {
+        likedMovie.background = ResourcesCompat.getDrawable(root.resources, R.drawable.ic_star, null)
+      } else {
+        likedMovie.background = ResourcesCompat.getDrawable(root.resources, R.drawable.ic_star_outline, null)
       }
 
       Glide.with(this.root)

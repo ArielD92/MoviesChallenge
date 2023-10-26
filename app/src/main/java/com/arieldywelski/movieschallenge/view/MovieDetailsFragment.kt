@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.arieldywelski.movieschallenge.R
@@ -20,6 +21,7 @@ class MovieDetailsFragment : Fragment() {
   private val viewModel: MovieDetailViewModel by viewModels()
 
   private var movieId: Long? = null
+  private var likeClick: (() -> Unit)? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -32,11 +34,11 @@ class MovieDetailsFragment : Fragment() {
     inflater: LayoutInflater,
     container: ViewGroup?,
     savedInstanceState: Bundle?
-  ) : View {
-    binding = FragmentMovieDetailsBinding.inflate(inflater, container,false)
+  ): View {
+    binding = FragmentMovieDetailsBinding.inflate(inflater, container, false)
 
     movieId?.let {
-      viewModel.getMovieDetails(movieId = it.toInt())
+      viewModel.getMovieDetails(movieId = it)
     }
 
     viewModel.item.observe(viewLifecycleOwner) {
@@ -53,8 +55,9 @@ class MovieDetailsFragment : Fragment() {
       toolbar.title = "Movie Details"
 
       toolbar.setOnMenuItemClickListener { menuItem ->
-        when(menuItem.itemId) {
+        when (menuItem.itemId) {
           R.id.action_liked_movie -> {
+            likeClick?.invoke()
             true
           }
           else -> false
@@ -62,7 +65,11 @@ class MovieDetailsFragment : Fragment() {
       }
     }
   }
+
   private fun bindMovieDetails(movie: MovieDetailViewModel.Movie) {
+    likeClick = {
+      viewModel.onMovieLiked(!movie.isLiked)
+    }
     with(binding) {
       movieTitle.text = movie.movieName
       if (movie.movieDescription.isEmpty()) {
@@ -72,10 +79,16 @@ class MovieDetailsFragment : Fragment() {
       }
       movieReleaseDate.text = movie.movieReleaseDate
 
+      toolbar.menu.findItem(R.id.action_liked_movie).icon = if (movie.isLiked) {
+        AppCompatResources.getDrawable(root.context, R.drawable.ic_star)
+      } else {
+        AppCompatResources.getDrawable(root.context, R.drawable.ic_star_outline)
+      }
+      toolbar.invalidateMenu()
+
       Glide.with(binding.root)
         .load(Constants.MOVIE_IMAGE_BASE_PATH + movie.moviePosterPath)
         .into(moviePoster)
     }
   }
-
 }
