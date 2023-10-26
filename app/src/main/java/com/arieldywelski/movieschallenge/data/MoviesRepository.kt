@@ -10,19 +10,18 @@ import javax.inject.Inject
 class MoviesRepository @Inject constructor(
   private val service: MovieAPIService
 ) {
-
-  fun getNowPlayingMMoviesStream(): Flow<PagingData<Movie>> {
+  fun getMoviesStream(query: String?): Flow<PagingData<Movie>> {
     return Pager(
       config = PagingConfig(
         enablePlaceholders = false,
         pageSize = NETWORK_PAGE_SIZE
       ),
       pagingSourceFactory = {
-        MoviesPagingSource(service)
+        MoviesPagingSource(service, query)
       }
     ).flow
   }
-
+  suspend fun getMovieDetails(movieId: Int) = service.getMovieDetails(movieId = movieId)
   companion object {
     private const val NETWORK_PAGE_SIZE = 30
   }

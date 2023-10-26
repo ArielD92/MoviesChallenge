@@ -1,6 +1,7 @@
 package com.arieldywelski.movieschallenge.data
 
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 data class Movie(
   @field:SerializedName("adult") val isMovieAdult: Boolean,

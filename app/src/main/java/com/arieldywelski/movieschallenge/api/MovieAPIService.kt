@@ -1,6 +1,7 @@
 package com.arieldywelski.movieschallenge.api
 
-import com.arieldywelski.movieschallenge.data.NowPlayingMoviesResponse
+import com.arieldywelski.movieschallenge.data.Movie
+import com.arieldywelski.movieschallenge.data.MoviesResponse
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -8,16 +9,32 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface MovieAPIService {
+  @GET("movie/now_playing")
+  suspend fun getNowPlayingMovies(
+    @Query("page") page: Int,
+    @Query("language") language: String = QUERY_LANGUAGE
+  ): MoviesResponse
 
-  @GET("movie/now_playing?language=pl")
-  suspend fun getNowPlayingMovies(): NowPlayingMoviesResponse
+  @GET("search/movie")
+  suspend fun getSearchMovies(
+    @Query("query") query: String,
+    @Query("page") page: Int,
+    @Query("language") language: String = QUERY_LANGUAGE
+  ): MoviesResponse
+
+  @GET("movie/{movie_id}")
+  suspend fun getMovieDetails(
+    @Path("movie_id") movieId: Int,
+    @Query("language") language: String = QUERY_LANGUAGE
+  ): retrofit2.Response<Movie>
 
   companion object {
     private const val BASE_URL = "https://api.themoviedb.org/3/"
-    const val MOVIE_IMAGE_BASE_PATH = "https://image.tmdb.org/t/p/w500"
+    private const val QUERY_LANGUAGE = "pl"
 
     fun create(): MovieAPIService {
       val logger = HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC }
@@ -55,6 +72,4 @@ class HeaderInterceptor : Interceptor {
 
     return chain.proceed(request)
   }
-
-
 }

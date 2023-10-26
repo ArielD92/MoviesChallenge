@@ -1,5 +1,7 @@
 <resources>
   <string name="app_name">Movies Challenge</string>
-  <!-- TODO: Remove or change this placeholder text -->
-  <string name="hello_blank_fragment">Hello blank fragment</string>
+  <string name="search_movie_hint_text">Search movies</string>
+  <string name="retry_button_text">Retry</string>
+  <string name="no_result_text">No result</string>
+  <string name="movie_poster_content_description">Content to present movie poster.</string>
 </resources>

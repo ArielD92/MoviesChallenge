@@ -8,6 +8,7 @@ private const val STARTING_PAGE_INDEX = 1
 
 class MoviesPagingSource(
   private val service: MovieAPIService,
+  private val query: String?,
 ) : PagingSource<Int, Movie>() {
   override fun getRefreshKey(state: PagingState<Int, Movie>): Int? {
     return state.anchorPosition?.let { anchorPosition ->
@@ -18,8 +19,11 @@ class MoviesPagingSource(
   override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Movie> {
     val page = params.key ?: STARTING_PAGE_INDEX
     return try {
-      val response = service.getNowPlayingMovies()
-      val movies = response.moviesList
+      val response = when {
+        query.isNullOrEmpty() -> service.getNowPlayingMovies(page = page)
+        else -> service.getSearchMovies(query = query, page = page)
+      }
+      val movies = response.moviesList.sortedByDescending { it.movieVoteAverage }
       val nextKey = if (movies.isEmpty()) {
         null
       } else {
